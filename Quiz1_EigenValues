@@ -1,0 +1,15 @@
+import numpy as np
+from numpy import linalg as LA
+
+
+input = np.array([[0,-1],[2,3]], dtype=float)
+v = LA.eig(input)
+print('v')
+print(v)
+
+#Eigen Values are 1 & 2
+#Eigen Vectors are array([[-0.70710678,  0.4472136 ],
+#        [ 0.70710678, -0.89442719]])
+
+#Which is equivalent to ([[-1,  -0.5 ],
+#        [ 1, 1]])
