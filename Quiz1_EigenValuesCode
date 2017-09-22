@@ -1,0 +1,17 @@
+import numpy as np
+from numpy import linalg as LA
+
+
+input = np.array([[0,-1],[2,3]], dtype=float)
+v = LA.eig(input)
+print('v')
+print(v)
+
+#Eigen Values are 1 & 2 which is same as theoretical
+#Eigen Vectors are array([[-0.70710678,  0.4472136 ],
+#        [ 0.70710678, -0.89442719]])
+
+
+# Following is the theoretical eigen vectors 
+#([[-1,  -0.5 ],
+#        [ 1, 1]]) if we scale it equally on same scale as of library both are same. However multiple eigne vectors can exist for eigen values
