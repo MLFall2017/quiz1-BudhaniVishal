@@ -1,3 +1,6 @@
+#Created on Tue Sep 19 2017
+#author: Vishal Budhani
+
 import pandas as pd
 import numpy as np
 
