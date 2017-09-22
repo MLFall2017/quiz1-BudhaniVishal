@@ -1,0 +1,169 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+class PCAAnalysis:
+    def __init__(self, dataPath):
+        # Mean Calculation Function
+        def calculateMean(list):
+            average = 0
+            sum = 0
+            for n in list:
+                sum = sum + n
+            average = sum / len(list)
+            return average
+
+        # Mean function closed
+
+        # Calculate Variance
+        def calculateVariance(list, mean):
+            sum = 0
+            variance = 0
+            for n in list:
+                sum = sum + ((n - mean) ** 2)
+            variance = sum / (len(list) - 1)
+            return variance
+
+        # CalculateVariance
+
+
+
+
+        dataFrame = pd.read_csv(dataPath)
+        # print the column names
+        print("Printing Columns")
+        print (dataFrame.columns)
+        # print the column names
+
+        dataFrame.columns = ['x', 'y', 'z']
+        dataFrame.dropna(how="all", inplace=True)  # drops the empty line at file-end
+        print(dataFrame.tail())
+
+        x_value = dataFrame.ix[:, 0]
+        y_value = dataFrame.ix[:,1]
+        z_value = dataFrame.ix[:,2]
+        print(x_value.tail())
+        print("Variance of x is")
+        print(calculateVariance(x_value, calculateMean(x_value)))
+
+        print("Variance of y is")
+        print(calculateVariance(y_value, calculateMean(y_value)))
+
+        print("Variance of z is")
+        print(calculateVariance(z_value, calculateMean(z_value)))
+
+        # Taken all the values in excel
+        X = dataFrame.ix[:, 0:4].values
+        print("Printing x")
+        print(X)
+        # Taken all the values in Excel
+
+        # let us continue with the transformation of the data onto unit scale (mean=0 and variance=1),
+        # which is a requirement for the optimal performance of many machine learning algorithms.
+        from sklearn.preprocessing import StandardScaler
+        standardValue = StandardScaler().fit_transform(X)
+        print("Printing standard_Val")
+        print(standardValue)
+        # Standardizing the data
+
+        # Calculating Covariance Matrix
+        mean_vec = np.mean(standardValue, axis=0)
+        print("Standard Mean_Vector")
+        print(mean_vec)
+
+        covarianceMatrix = (standardValue - mean_vec).T.dot((standardValue - mean_vec)) / (standardValue.shape[0] - 1)
+        print('Covariance matrix \n%s' % covarianceMatrix)
+        # Calculating Covariance Matrix
+
+        # Performing eigen decomposition on covariance matrix
+        eigenValues, eigenVectors = np.linalg.eig(covarianceMatrix)
+
+        print('Eigen Vectors are as \n%s' % eigenVectors)
+        print('\nEigen Values are as \n%s' % eigenValues)
+
+        # Perform an eigendecomposition on the covariance matrix
+
+        # Asserting
+        for ev in eigenVectors:
+            np.testing.assert_array_almost_equal(1.0, np.linalg.norm(ev))
+        print('Everything ok! \n')
+        # Asserting
+
+        # Make a list of (eigenvalue, eigenvector) tuples
+        eigenPairs = [(np.abs(eigenValues[i]), eigenVectors[:, i]) for i in range(len(eigenValues))]
+
+        # Sort the (eigenvalue, eigenvector) tuples from high to low
+        eigenPairs.sort()
+        eigenPairs.reverse()
+
+        # Visually confirm that the list is correctly sorted by decreasing eigenvalues
+        print('Eigenvalues in descending order:')
+        for item in eigenPairs:
+            print(item[0])
+
+
+        # Reducing the dimensionality
+        print('I am taking top two values of eigen values for PCA')
+
+        dimensionalReducedMatrix = np.hstack((eigenPairs[0][1].reshape(3, 1),
+                                              eigenPairs[1][1].reshape(3, 1)))
+
+        print('Matrix W:\n', dimensionalReducedMatrix)
+        # Reducing the dimensionality
+
+        # In this last step we will use the 4*24*2-dimensional projection matrix
+        # WW to transform our samples onto the new subspace via the equation
+        # Y=X*W where Y is a 1000*2 matrix of our transformed samples.
+
+        finalReduced = standardValue.dot(dimensionalReducedMatrix)
+        print('Printing the final value \n', finalReduced)
+
+        final1 = finalReduced[:, 0]
+        final2 = finalReduced[:, 1]
+
+        # print('\n Final1:\n', final1)
+        # print('\n Final2:\n', final2)
+
+
+        plt.interactive(False)
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        ax.scatter(final1, final2)
+        plt.show()
+
+
+        #Solution Answers:
+
+
+        #Variance of x is 0.0806099157998
+        #Variance of y is 2.09900159311
+        #Variance of z is 0.0805825374164
+
+        # Covariance matrix is :
+        #[[1.001001    0.97931616 - 0.03117904]
+        # [0.97931616  1.001001 - 0.03503555]
+        #[-0.03117904 - 0.03503555 1.001001]]
+        #Covariance Between x and y is 0.97931616
+        #Covariance Between y and z is -0.03503555
+
+        # without sorting Eigen values and eigen vectors are as:
+        #Eigen Vectors
+        #         are as
+        #         [[0.70625682  0.70705691  0.03566266]
+        #          [0.70635053 - 0.70715115  0.03172022]
+        #         [-0.0476469 - 0.00278772   0.99886035]]
+        #Eigen Values are as [1.98255057  0.02167724  0.9987752]
+
+        #Eigenvalues in descending order:
+        # 1.98255056551
+        # 0.998775201222
+        # 0.0216772362689
+
+
+
+        # Solution Answers
+
+if __name__ == "__main__":
+    path = 'C:\MS\Fall2017\MachineLearning\Quiz\Quiz_1\dataset_1.csv'
+    pca = PCAAnalysis(path)
